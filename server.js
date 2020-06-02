@@ -30,6 +30,23 @@ const User = mongoose.model('User', {
   },
 });
 
+const Review = mongoose.model('Review', {
+  message: {
+    type: String,
+    required: true,
+    minlength: 5,
+    maxlength: 140,
+  },
+  hearts: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: () => new Date(),
+  },
+});
+
 const authenticateUser = async (req, res, next) => {
   try {
     const user = await User.findOne({
@@ -96,6 +113,34 @@ app.post('/sessions', async (req, res) => {
     }
   } catch (err) {
     res.status(400).json({ message: 'Could not log in', errors: err.errors });
+  }
+});
+
+// SEE THE REVIEWS IN THE DATABASE
+app.get('/reviews', async (req, res) => {
+  try {
+    const review = await Review.find().sort({ createdAt: -1 }).limit(20);
+    res.json(review);
+  } catch (err) {
+    res.status(400).json({
+      message: 'Could not load the reviews',
+      errors: err.errors,
+    });
+  }
+});
+
+// ADD A REVIEW TO THE DATABASE
+app.post('/reviews', async (req, res) => {
+  const review = new Review({ message: req.body.message });
+  try {
+    //Sucess
+    const savedReview = await review.save();
+    res.status(200).json(savedReview);
+  } catch (err) {
+    res.status(400).json({
+      message: 'Could not save review',
+      errors: err.errors,
+    });
   }
 });
 
