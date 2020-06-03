@@ -130,6 +130,7 @@ app.get('/reviews', async (req, res) => {
 });
 
 // ADD A REVIEW TO THE DATABASE
+app.post('/reviews', authenticateUser);
 app.post('/reviews', async (req, res) => {
   const review = new Review({ message: req.body.message });
   try {
