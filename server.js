@@ -10,6 +10,20 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = Promise;
 mongoose.set("useCreateIndex", true);
 
+const nodemailer = require("nodemailer");
+const creds = require("./config");
+
+const transport = {
+  host: "smtp.gmail.com",
+  port: 587,
+  auth: {
+    user: creds.USER,
+    pass: creds.PASS,
+  },
+};
+
+const transporter = nodemailer.createTransport(transport);
+
 const User = mongoose.model("User", {
   name: {
     type: String,
@@ -145,6 +159,31 @@ app.post("/reviews", async (req, res) => {
       errors: err.errors,
     });
   }
+});
+
+app.post("/contact", (req, res, next) => {
+  const name = req.body.name;
+  const email = req.body.email;
+  const message = req.body.message;
+  const content = `name: ${name} \n email: ${email} \n message: ${message}`;
+
+  const mail = {
+    from: name,
+    to: "yogajuristen@gmail.com",
+    subject: "New Message from Contact Form",
+    text: content,
+  };
+  transporter.sendMail(mail, (err, data) => {
+    if (err) {
+      res.json({
+        status: "fail",
+      });
+    } else {
+      res.json({
+        status: "success",
+      });
+    }
+  });
 });
 
 // Start the server
