@@ -10,20 +10,6 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = Promise;
 mongoose.set("useCreateIndex", true);
 
-const nodemailer = require("nodemailer");
-const creds = require("./config");
-
-const transport = {
-  host: "smtp.gmail.com",
-  port: 587,
-  auth: {
-    user: creds.USER,
-    pass: creds.PASS,
-  },
-};
-
-const transporter = nodemailer.createTransport(transport);
-
 const User = mongoose.model("User", {
   name: {
     type: String,
@@ -107,13 +93,6 @@ app.post("/users", async (req, res) => {
   }
 });
 
-// SECURE ENDPOINT, CHECK IF USER IS AUTHORIZED
-app.get("/users/:id", authenticateUser);
-app.get("/users/:id", (req, res) => {
-  const loginMessage = `This is a super secret message for  ${req.user.name}`;
-  res.status(201).json({ loginMessage });
-});
-
 // LOG IN
 app.post("/sessions", async (req, res) => {
   try {
@@ -161,7 +140,22 @@ app.post("/reviews", async (req, res) => {
   }
 });
 
-app.post("/contact", (req, res, next) => {
+// SEND A MESSAGE THROUGH CONTACT FORM
+const nodemailer = require("nodemailer");
+const creds = require("./config");
+
+const transport = {
+  host: "smtp.gmail.com",
+  port: 587,
+  auth: {
+    user: creds.USER,
+    pass: creds.PASS,
+  },
+};
+
+const transporter = nodemailer.createTransport(transport);
+
+app.post("/contact", (req, res) => {
   const name = req.body.name;
   const email = req.body.email;
   const message = req.body.message;
@@ -173,7 +167,7 @@ app.post("/contact", (req, res, next) => {
     subject: "New Message from Contact Form",
     text: content,
   };
-  transporter.sendMail(mail, (err, data) => {
+  transporter.sendMail(mail, (err) => {
     if (err) {
       res.json({
         status: "fail",
