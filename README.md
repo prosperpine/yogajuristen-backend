@@ -1,7 +1,7 @@
-# Express Starter Project
+Yogajuristen
 
-This project includes the packages and babel setup for an express server, and is just meant to make things a little simpler to get up and running with.
+This is a part of website I made for a friend of mine to promote her as a yoga teacher.
 
-## Getting started
+This is the backend, for which I used; Node.js, Express.
 
-Install dependencies with `npm install`, then start the server by running `npm run dev`
+See the frontend repo here: https://github.com/prosperpine/yogajuristen-frontend
